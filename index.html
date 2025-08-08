@@ -385,7 +385,7 @@
         }
 
         async function swapAndProcess(tile1, tile2) {
-            isProcessing = true; playSound('swap', -10); moves--; updateStats();
+            isProcessing = true; playSound('swap', 0); moves--; updateStats();
             let tempBoard = board.map(r => [...r]);
             const temp = tempBoard[tile1.row][tile1.col];
             tempBoard[tile1.row][tile1.col] = tempBoard[tile2.row][tile2.col];
@@ -402,8 +402,8 @@
              while(matchGroups.length > 0) {
                 const flatMatches = [...new Set(matchGroups.flat().map(t => `${t.row}-${t.col}`))];
                 if (flatMatches.length >= 5) playSound('match5', 0);
-                else if (flatMatches.length === 4) playSound('match4', 5);
-                else playSound('match3', 10);
+                else if (flatMatches.length === 4) playSound('match4', 0);
+                else playSound('match3', 0);
                 score += flatMatches.length * POINTS_PER_ORIGAMI; updateStats();
                 await removeMatches(flatMatches.map(id => { const [row, col] = id.split('-').map(Number); return {row, col}; }));
                 await refillBoard();
@@ -551,4 +551,5 @@
     </script>
 </body>
 </html>
+
 
