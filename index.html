@@ -299,9 +299,9 @@
         const soundPlayers = new Tone.Players({
             urls: {
                 intro: "https://tonejs.github.io/audio/loop/casio/C2.mp3",
-                match3: "https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/explosion01.mp3",
-                match4: "https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/explosion02.mp3",
-                match5: "https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/explosion03.mp3",
+                    match3: "https://tonejs.github.io/audio/berklee/harp_C4.mp3",
+                match4: "https://tonejs.github.io/audio/berklee/harp_E4.mp3",
+                match5: "https://tonejs.github.io/audio/berklee/harp_G4.mp3",
                 swap: "https://tonejs.github.io/audio/berklee/mixkit-fast-sweep-transition-2399.wav",
                 levelWin: "https://tonejs.github.io/audio/berklee/gong_1.mp3",
                 gameOver: "https://tonejs.github.io/audio/berklee/gamelan_G2.mp3"
@@ -310,7 +310,7 @@
             onerror: (error) => console.error("Error loading sounds:", error),
         }).toDestination();
         soundPlayers.player("intro").loop = true;
-        soundPlayers.player("intro").volume.value = 0;
+        soundPlayers.player("intro").volume.value = -8;
 
         function playSound(type, volume = 0) {
             if (isMuted || !soundPlayers.loaded) return;
@@ -385,7 +385,7 @@
         }
 
         async function swapAndProcess(tile1, tile2) {
-            isProcessing = true; playSound('swap', 0); moves--; updateStats();
+            isProcessing = true; playSound('swap', -10); moves--; updateStats();
             let tempBoard = board.map(r => [...r]);
             const temp = tempBoard[tile1.row][tile1.col];
             tempBoard[tile1.row][tile1.col] = tempBoard[tile2.row][tile2.col];
@@ -402,8 +402,8 @@
              while(matchGroups.length > 0) {
                 const flatMatches = [...new Set(matchGroups.flat().map(t => `${t.row}-${t.col}`))];
                 if (flatMatches.length >= 5) playSound('match5', 0);
-                else if (flatMatches.length === 4) playSound('match4', 0);
-                else playSound('match3', 0);
+                else if (flatMatches.length === 4) playSound('match4', -5);
+                else playSound('match3', -8);
                 score += flatMatches.length * POINTS_PER_ORIGAMI; updateStats();
                 await removeMatches(flatMatches.map(id => { const [row, col] = id.split('-').map(Number); return {row, col}; }));
                 await refillBoard();
@@ -551,5 +551,6 @@
     </script>
 </body>
 </html>
+
 
 
