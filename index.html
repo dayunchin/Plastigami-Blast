@@ -355,7 +355,7 @@
             onerror: (error) => console.error("Error loading sounds:", error),
         }).toDestination();
         soundPlayers.player("intro").loop = true;
-        soundPlayers.player("intro").volume.value = 8;
+        soundPlayers.player("intro").volume.value = 0;
 
         function playSound(type) {
             if (isMuted || !soundPlayers.loaded) return;
@@ -640,4 +640,5 @@
     </script>
 </body>
 </html>
+
 
