@@ -16,7 +16,6 @@
             --score-bg: #fff;
             --text-dark: #333;
             --accent-color: #4A90E2; 
-            --leaderboard-bg: #ffffff;
         }
 
         body {
@@ -190,26 +189,6 @@
             width: 35px; height: 35px; font-size: 18px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; color: var(--accent-color);
         }
-        #leaderboard-container {
-            width: 300px; padding: 20px; background-color: var(--leaderboard-bg);
-            border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        #leaderboard-container h2 {
-            font-family: 'Fredoka One', cursive; color: var(--accent-color);
-            text-align: center; margin-top: 0;
-        }
-        #leaderboard-list {
-            list-style: none; padding: 0; margin: 0;
-            max-height: 400px; overflow-y: auto;
-        }
-        .leaderboard-item {
-            display: flex; justify-content: space-between; padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .leaderboard-item:last-child { border-bottom: none; }
-        .leaderboard-name { font-weight: bold; }
-        .leaderboard-score { color: var(--accent-color); }
-        .leaderboard-date { font-size: 0.8em; color: #999; }
     </style>
 </head>
 <body>
@@ -244,13 +223,6 @@
                 <div id="game-board"></div>
             </div>
         </div>
-
-        <div id="leaderboard-container">
-            <h2>🏆 Leaderboard 🏆</h2>
-            <ul id="leaderboard-list">
-                <li>Loading scores...</li>
-            </ul>
-        </div>
     </div>
     
     <div id="game-over-modal" class="modal">
@@ -261,27 +233,11 @@
         </div>
     </div>
     
-    <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        let db, auth, isAuthReady = false;
-
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-        } catch (e) { console.error("Firebase initialization failed:", e); }
-
         const BOARD_SIZE = 8;
-        // --- Image URLs for Origami Pieces ---
         const LEVEL_ORIGAMI = [
             // Level 1
-            ['https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0101.png', 
+  ['https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0101.png', 
 	'https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0102.png', 
 	'https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0103.png', 
 	'https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0104.png', 
@@ -334,7 +290,6 @@
         const modalTextElement = document.getElementById('modal-text');
         const restartButton = document.getElementById('restart-button');
         const muteButton = document.getElementById('mute-button');
-        const leaderboardList = document.getElementById('leaderboard-list');
 
         let board = [], score = 0, moves = 0, currentLevel = 1;
         let selectedTile = null, isProcessing = false, isMuted = false;
@@ -355,12 +310,14 @@
             onerror: (error) => console.error("Error loading sounds:", error),
         }).toDestination();
         soundPlayers.player("intro").loop = true;
-        soundPlayers.player("intro").volume.value = 0;
+        soundPlayers.player("intro").volume.value = -8;
 
-        function playSound(type) {
+        function playSound(type, volume = 0) {
             if (isMuted || !soundPlayers.loaded) return;
             try {
-                soundPlayers.player(type).start();
+                const player = soundPlayers.player(type);
+                player.volume.value = volume;
+                player.start();
             } catch (e) { console.error(`Audio playback error for type "${type}":`, e); }
         }
 
@@ -388,7 +345,7 @@
                     tile.dataset.row = r; tile.dataset.col = c;
                     
                     const img = document.createElement('img');
-                    img.src = item; // item is now an image URL
+                    img.src = item;
                     tile.appendChild(img);
                     
                     tile.addEventListener('click', handleTileClick);
@@ -428,7 +385,7 @@
         }
 
         async function swapAndProcess(tile1, tile2) {
-            isProcessing = true; playSound('swap'); moves--; updateStats();
+            isProcessing = true; playSound('swap', -10); moves--; updateStats();
             let tempBoard = board.map(r => [...r]);
             const temp = tempBoard[tile1.row][tile1.col];
             tempBoard[tile1.row][tile1.col] = tempBoard[tile2.row][tile2.col];
@@ -444,9 +401,9 @@
              let matchGroups = initialMatchGroups;
              while(matchGroups.length > 0) {
                 const flatMatches = [...new Set(matchGroups.flat().map(t => `${t.row}-${t.col}`))];
-                if (flatMatches.length >= 5) playSound('match5');
-                else if (flatMatches.length === 4) playSound('match4');
-                else playSound('match3');
+                if (flatMatches.length >= 5) playSound('match5', 0);
+                else if (flatMatches.length === 4) playSound('match4', -5);
+                else playSound('match3', -10);
                 score += flatMatches.length * POINTS_PER_ORIGAMI; updateStats();
                 await removeMatches(flatMatches.map(id => { const [row, col] = id.split('-').map(Number); return {row, col}; }));
                 await refillBoard();
@@ -518,18 +475,11 @@
                 resolve();
             });
         }
-        
-        async function handleGameOver() {
-            isProcessing = true;
-            if (isAuthReady && playerName) {
-                await submitScore(playerName, score);
-            }
-        }
 
         function checkGameState() {
             const goal = LEVEL_GOALS[currentLevel - 1];
             if (score >= goal) {
-                playSound('levelWin');
+                playSound('levelWin', -5);
                 modalTitleElement.textContent = `Level ${currentLevel} Complete!`;
                 modalTextElement.textContent = `You scored ${score} points!`;
                 if(currentLevel < LEVEL_GOALS.length) {
@@ -540,44 +490,16 @@
                     modalTextElement.textContent = `You've completed all levels! Final Score: ${score}`;
                     restartButton.textContent = 'Play Again From Start';
                     restartButton.onclick = () => beginGame(1);
-                    handleGameOver();
                 }
                 modalElement.classList.add('visible');
             } else if (moves <= 0) {
-                playSound('gameOver');
+                playSound('gameOver', -5);
                 modalTitleElement.textContent = 'Game Over!';
                 modalTextElement.textContent = `You ran out of moves. Final Score: ${score}`;
                 restartButton.textContent = 'Restart Level';
                 restartButton.onclick = () => beginGame(currentLevel);
-                handleGameOver();
                 modalElement.classList.add('visible');
             }
-        }
-        
-        async function submitScore(name, finalScore) {
-            if (!name || !db || !isAuthReady) return;
-            try {
-                const leaderboardCollection = collection(db, `/artifacts/${appId}/public/data/leaderboard`);
-                await addDoc(leaderboardCollection, { name: name, score: finalScore, createdAt: new Date() });
-                console.log("Score submitted successfully for", name);
-            } catch (error) { console.error("Error adding document: ", error); }
-        }
-
-        function listenForScores() {
-            if (!db) { leaderboardList.innerHTML = '<li>Leaderboard disabled.</li>'; return; }
-            const leaderboardCollection = collection(db, `/artifacts/${appId}/public/data/leaderboard`);
-            const q = query(leaderboardCollection, orderBy("score", "desc"), limit(10));
-            onSnapshot(q, (snapshot) => {
-                leaderboardList.innerHTML = '';
-                if (snapshot.empty) { leaderboardList.innerHTML = '<li>No scores yet. Be the first!</li>'; }
-                snapshot.forEach(doc => {
-                    const data = doc.data(); const li = document.createElement('li');
-                    li.classList.add('leaderboard-item');
-                    const date = data.createdAt.toDate().toLocaleDateString();
-                    li.innerHTML = `<div><span class="leaderboard-name">${data.name}</span><div class="leaderboard-date">${date}</div></div><span class="leaderboard-score">${data.score}</span>`;
-                    leaderboardList.appendChild(li);
-                });
-            }, (error) => { console.error("Error fetching leaderboard:", error); leaderboardList.innerHTML = '<li>Error loading scores.</li>'; });
         }
         
         // --- Event Listeners ---
@@ -625,20 +547,7 @@
             }
         });
 
-        // Firebase Auth
-        onAuthStateChanged(auth, async (user) => {
-            if (user) { isAuthReady = true; listenForScores(); } 
-            else {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) { await signInWithCustomToken(auth, __initial_auth_token); } 
-                    else { await signInAnonymously(auth); }
-                } catch (error) { console.error("Anonymous sign-in failed:", error); leaderboardList.innerHTML = '<li>Leaderboard disabled (auth failed).</li>'; }
-            }
-        });
-
         muteButton.textContent = isMuted ? '🔇' : '🔊';
     </script>
 </body>
 </html>
-
-
