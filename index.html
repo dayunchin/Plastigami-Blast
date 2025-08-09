@@ -265,17 +265,18 @@
         // --- New MP3 Sound Palette ---
         const soundPlayers = new Tone.Players({
             urls: {
-        		intro: "https://dayunchin.github.io/Plastigami-Blast/sounds/intro.mp3",
-                match3: "https://dayunchin.github.io/Plastigami-Blast/sounds/explosion01.mp3",
-                match4: "https://dayunchin.github.io/Plastigami-Blast/sounds/explosion02.mp3",
-                match5: "https://dayunchin.github.io/Plastigami-Blast/sounds/explosion03.mp3",
-                swap: "https://dayunchin.github.io/Plastigami-Blast/sounds/swap.mp3",
-                levelWin: "https://dayunchin.github.io/Plastigami-Blast/sounds/win.mp3",
-                gameOver: "https://dayunchin.github.io/Plastigami-Blast/sounds/fail.mp3"
+        		intro: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/intro.mp3",
+                match3: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion01.mp3",
+                match4: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion02.mp3",
+                match5: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion03.mp3",
+                swap: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/swap.mp3",
+                levelWin: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/win.mp3",
+                gameOver: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/fail.mp3"
             },
             onload: () => console.log("All sounds loaded."),
             onerror: (error) => console.error("Error loading sounds:", error),
         }).toDestination();
+	    soundPlayers.autostart = true;
         soundPlayers.player("intro").loop = true;
 
         function playSound(type, volume = 0) {
@@ -510,5 +511,6 @@
     </script>
 </body>
 </html>
+
 
 
