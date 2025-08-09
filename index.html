@@ -271,13 +271,14 @@
         // --- New MP3 Sound Palette ---
         const soundPlayers = new Tone.Players({
             urls: {
-        		intro: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/intro.mp3",
-                match3: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion01.mp3",
-                match4: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion02.mp3",
-                match5: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/explosion03.mp3",
-                swap: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/swap.mp3",
-                levelWin: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/win.mp3",
-                gameOver: "https://github.com/dayunchin/Plastigami-Blast/raw/refs/heads/main/sounds/fail.mp3"
+                    urls: {
+                intro: "sounds/intro.mp3",
+                match3: "sounds/explosion01.mp3",
+                match4: "sounds/explosion02.mp3",
+                match5: "sounds/explosion03.mp3",
+                swap: "sounds/swap.mp3",
+                levelWin: "sounds/win.mp3",
+                gameOver: "sounds/fail.mp3"
             },
             onload: () => console.log("All sounds loaded."),
             onerror: (error) => console.error("Error loading sounds:", error),
@@ -517,6 +518,7 @@
     </script>
 </body>
 </html>
+
 
 
 
