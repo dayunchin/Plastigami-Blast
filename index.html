@@ -51,31 +51,9 @@
             font-size: clamp(3rem, 12vw, 7rem);
             text-shadow: 5px 5px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000, 2px 2px 0px #000;
             letter-spacing: 5px;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
         
-        #intro-form {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        #intro-player-name {
-            font-family: 'Fredoka One', cursive;
-            font-size: 1.2rem;
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 3px solid white;
-            text-align: center;
-            background-color: rgba(0,0,0,0.3);
-            color: white;
-            outline: none;
-        }
-        #intro-player-name::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-
         #start-game-button {
             font-family: 'Fredoka One', cursive;
             font-size: 1.5rem;
@@ -86,16 +64,11 @@
             color: white;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transition: transform 0.2s, background-color 0.2s, opacity 0.2s;
+            transition: transform 0.2s, background-color 0.2s;
         }
         #start-game-button:hover {
             transform: scale(1.05);
             background-color: #3a7bc8;
-        }
-        #start-game-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: scale(1);
         }
 
         .game-wrapper {
@@ -115,8 +88,8 @@
         .game-container {
             position: relative; display: flex; flex-direction: column;
             align-items: center; gap: 15px; padding: 20px;
-            background-color: rgba(255, 255, 255, 0.2); border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); backdrop-filter: none;
+            background-color: rgba(255, 255, 255, 0.7); border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px);
             width: fit-content;
         }
         h1 {
@@ -195,10 +168,7 @@
 
     <div id="intro-page">
         <h1 id="intro-title">Plastigami Blast</h1>
-        <form id="intro-form">
-            <input type="text" id="intro-player-name" placeholder="Enter Your Name" required maxlength="15">
-            <button type="submit" id="start-game-button" disabled>Start Game</button>
-        </form>
+        <button id="start-game-button">Start Game</button>
     </div>
 
     <div class="game-wrapper">
@@ -236,7 +206,6 @@
     <script type="module">
         const BOARD_SIZE = 8;
         const LEVEL_ORIGAMI = [
-            // Level 1
   ['https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0101.png', 
 	'https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0102.png', 
 	'https://raw.githubusercontent.com/dayunchin/Plastigami-Blast/main/b0103.png', 
@@ -277,8 +246,6 @@
         const MOVES_PER_LEVEL = [30, 40, 50, 55, 60];
 
         const introPage = document.getElementById('intro-page');
-        const introForm = document.getElementById('intro-form');
-        const playerNameInput = document.getElementById('intro-player-name');
         const startGameButton = document.getElementById('start-game-button');
         const gameWrapper = document.querySelector('.game-wrapper');
         const boardElement = document.getElementById('game-board');
@@ -293,24 +260,23 @@
 
         let board = [], score = 0, moves = 0, currentLevel = 1;
         let selectedTile = null, isProcessing = false, isMuted = false;
-        let origami = LEVEL_ORIGAMI[0], playerName = '';
+        let origami = LEVEL_ORIGAMI[0];
 
-        // --- MP3 Sound Palette ---
+        // --- New MP3 Sound Palette ---
         const soundPlayers = new Tone.Players({
             urls: {
-                intro: "https://tonejs.github.io/audio/loop/casio/C2.mp3",
-                    match3: "https://tonejs.github.io/audio/berklee/harp_C4.mp3",
-                match4: "https://tonejs.github.io/audio/berklee/harp_E4.mp3",
-                match5: "https://tonejs.github.io/audio/berklee/harp_G4.mp3",
-                swap: "https://tonejs.github.io/audio/berklee/mixkit-fast-sweep-transition-2399.wav",
-                levelWin: "https://tonejs.github.io/audio/berklee/gong_1.mp3",
-                gameOver: "https://tonejs.github.io/audio/berklee/gamelan_G2.mp3"
+                intro: "https://tonejs.github.io/audio/loop/drum_g_90.mp3",
+                match3: "https://tonejs.github.io/audio/berklee/222_3.mp3",
+                match4: "https://tonejs.github.io/audio/berklee/222_4.mp3",
+                match5: "https://tonejs.github.io/audio/berklee/222_5.mp3",
+                swap: "https://tonejs.github.io/audio/berklee/222_1.mp3",
+                levelWin: "https://tonejs.github.io/audio/berklee/222_6.mp3",
+                gameOver: "https://tonejs.github.io/audio/berklee/222_7.mp3"
             },
             onload: () => console.log("All sounds loaded."),
             onerror: (error) => console.error("Error loading sounds:", error),
         }).toDestination();
         soundPlayers.player("intro").loop = true;
-        soundPlayers.player("intro").volume.value = -8;
 
         function playSound(type, volume = 0) {
             if (isMuted || !soundPlayers.loaded) return;
@@ -385,7 +351,7 @@
         }
 
         async function swapAndProcess(tile1, tile2) {
-            isProcessing = true; playSound('swap', -10); moves--; updateStats();
+            isProcessing = true; playSound('swap', -8); moves--; updateStats();
             let tempBoard = board.map(r => [...r]);
             const temp = tempBoard[tile1.row][tile1.col];
             tempBoard[tile1.row][tile1.col] = tempBoard[tile2.row][tile2.col];
@@ -402,8 +368,8 @@
              while(matchGroups.length > 0) {
                 const flatMatches = [...new Set(matchGroups.flat().map(t => `${t.row}-${t.col}`))];
                 if (flatMatches.length >= 5) playSound('match5', 0);
-                else if (flatMatches.length === 4) playSound('match4', -5);
-                else playSound('match3', -8);
+                else if (flatMatches.length === 4) playSound('match4', -3);
+                else playSound('match3', -6);
                 score += flatMatches.length * POINTS_PER_ORIGAMI; updateStats();
                 await removeMatches(flatMatches.map(id => { const [row, col] = id.split('-').map(Number); return {row, col}; }));
                 await refillBoard();
@@ -479,7 +445,7 @@
         function checkGameState() {
             const goal = LEVEL_GOALS[currentLevel - 1];
             if (score >= goal) {
-                playSound('levelWin', -5);
+                playSound('levelWin', 0);
                 modalTitleElement.textContent = `Level ${currentLevel} Complete!`;
                 modalTextElement.textContent = `You scored ${score} points!`;
                 if(currentLevel < LEVEL_GOALS.length) {
@@ -493,7 +459,7 @@
                 }
                 modalElement.classList.add('visible');
             } else if (moves <= 0) {
-                playSound('gameOver', -5);
+                playSound('gameOver', 0);
                 modalTitleElement.textContent = 'Game Over!';
                 modalTextElement.textContent = `You ran out of moves. Final Score: ${score}`;
                 restartButton.textContent = 'Restart Level';
@@ -506,28 +472,20 @@
         async function startAudio() {
             await Tone.start();
             console.log("Audio context started");
+            if (soundPlayers.loaded && !isMuted) {
+                soundPlayers.player("intro").start();
+            }
         }
 
-        playerNameInput.addEventListener('input', () => {
-            if (playerNameInput.value.trim().length > 0) {
-                startGameButton.disabled = false;
-                if (Tone.context.state !== 'running') {
-                    startAudio();
-                }
-                if (soundPlayers.loaded && soundPlayers.player("intro").state !== 'started' && !isMuted) {
-                    soundPlayers.player("intro").start();
-                }
-            } else {
-                startGameButton.disabled = true;
+        startGameButton.addEventListener('click', () => {
+            if (Tone.context.state !== 'running') {
+                startAudio();
             }
-        });
-
-        introForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            playerName = playerNameInput.value.trim();
-            if (!playerName) return;
-
-            if (soundPlayers.player("intro").state === 'started') soundPlayers.player("intro").stop(Tone.now() + 0.5);
+            
+            if (soundPlayers.player("intro").state === 'started') {
+                soundPlayers.player("intro").stop(Tone.now() + 0.5);
+            }
+            
             introPage.style.opacity = '0';
             setTimeout(() => {
                 introPage.style.display = 'none';
@@ -538,11 +496,12 @@
         });
 
         muteButton.addEventListener('click', () => {
-             if (Tone.context.state !== 'running') { startAudio(); }
+            if (Tone.context.state !== 'running') { startAudio(); }
             isMuted = !isMuted;
             muteButton.textContent = isMuted ? '🔇' : '🔊';
-            if (soundPlayers.player("intro").state === 'started' && isMuted) { soundPlayers.player("intro").stop(); } 
-            else if (soundPlayers.loaded && soundPlayers.player("intro").state !== 'started' && !isMuted && introPage.style.opacity !== '0' && playerNameInput.value.trim().length > 0) {
+            if (soundPlayers.player("intro").state === 'started' && isMuted) {
+                soundPlayers.player("intro").stop();
+            } else if (soundPlayers.loaded && soundPlayers.player("intro").state !== 'started' && !isMuted && introPage.style.opacity !== '0') {
                 soundPlayers.player("intro").start();
             }
         });
@@ -551,8 +510,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
